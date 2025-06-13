@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test File Upload</title>
+  <style>
+    body { 
+      background: #181c23; 
+      color: #f3f6fa; 
+      font-family: sans-serif; 
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .container {
+      background: #232733;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .result { 
+      margin-top: 1rem; 
+      padding: 1rem;
+      border-radius: 5px;
+      background: #1a1e25;
+    }
+    .success { color: #4CAF50; }
+    .error { color: #f44336; }
+    button {
+      background: #5e72eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background: #4a5fd1;
+    }
+    #fileInput {
+      margin: 1rem 0;
+      color: #f3f6fa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Test File Upload</h2>
+    <input type="file" id="fileInput" multiple accept=".pdf">
+    <button id="uploadBtn">Upload</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('uploadBtn').onclick = async function() {
+      const input = document.getElementById('fileInput');
+      const result = document.getElementById('result');
+      
+      if (!input.files.length) {
+        result.innerHTML = '<span class="error">Please select a file.</span>';
+        return;
+      }
+
+      const formData = new FormData();
+      for (const file of input.files) {
+        formData.append('files', file);
+      }
+
+      result.innerHTML = '<span>Uploading...</span>';
+      
+      try {
+        const res = await fetch('files/uploadLocalFiles', {
+          method: 'POST',
+          body: formData
+        });
+
+        // Try to parse as JSON first
+        let data;
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          // If not JSON, get the text
+          const text = await res.text();
+          throw new Error(`Server returned non-JSON response: ${text.substring(0, 200)}...`);
+        }
+
+        if (res.ok) {
+          result.innerHTML = `<span class="success">Success: ${JSON.stringify(data, null, 2)}</span>`;
+        } else {
+          result.innerHTML = `<span class="error">Error: ${JSON.stringify(data, null, 2)}</span>`;
+        }
+      } catch (err) {
+        result.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+        console.error('Upload error:', err);
+      }
+    };
+  </script>
+</body>
+</html>

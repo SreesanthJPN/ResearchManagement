@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            color: #5e72eb;
+            text-align: center;
+        }
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .auth-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="auth-bg">
+    <div class="auth-container">
+        <h2>Welcome Back</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="auth-btn" id="loginBtn">Login</button>
+            <div id="loading" class="loading">
+                <i class="fa fa-spinner"></i> Logging in...
+            </div>
+        </form>
+        <p class="switch-link">Don't have an account? <a href="signup.html">Sign up</a></p>
+        <div id="loginError" class="error-msg"></div>
+    </div>
+    <script src="login.js"></script>
+</body>
+</html> 

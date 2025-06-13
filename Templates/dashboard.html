@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Dashboard Styles */
+        body.dashboard-bg {
+            background: #181c23;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            color: #f3f6fa;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #20232c;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1rem 1rem 1.5rem;
+            border-top-left-radius: 18px;
+            border-bottom-left-radius: 18px;
+            box-shadow: 2px 0 16px 0 rgba(31, 38, 135, 0.10);
+        }
+
+        .sidebar-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .sidebar-nav a {
+            color: #bfc9da;
+            text-decoration: none;
+            font-size: 1.08rem;
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .sidebar-nav a.active, .sidebar-nav a:hover {
+            background: #232733;
+            color: #5e72eb;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2.5rem 3rem;
+            background: #232733;
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-width: 0;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #f3f6fa;
+        }
+
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .file-card {
+            background: #1a1e25;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px 0 rgba(31, 38, 135, 0.10);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 180px;
+            max-width: 220px;
+            color: #f3f6fa;
+            font-size: 1.08rem;
+            font-weight: 500;
+            transition: background 0.2s, box-shadow 0.2s;
+            cursor: context-menu;
+        }
+
+        .file-card:hover {
+            background: #232733;
+            box-shadow: 0 4px 18px 0 rgba(31, 38, 135, 0.18);
+        }
+
+        .file-icon {
+            font-size: 1.7rem;
+            color: #5e72eb;
+        }
+
+        .file-name {
+            word-break: break-all;
+        }
+
+        .action-buttons {
+            position: fixed;
+            right: 2rem;
+            bottom: 2rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .research-gap-btn {
+            background: linear-gradient(135deg, #5e72eb 0%, #3b3f5c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            height: 48px;
+        }
+
+        .research-gap-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .research-gap-btn:active {
+            transform: translateY(0);
+        }
+
+        .research-gap-btn i {
+            font-size: 1.2rem;
+        }
+
+        .upload-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5e72eb 0%, #3b3f5c 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-btn:active {
+            transform: scale(0.95);
+        }
+
+        .upload-btn i {
+            font-size: 24px;
+        }
+
+        .loading, .no-files {
+            color: #bfc9da;
+            font-size: 1.1rem;
+            padding: 2rem 0;
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 1rem;
+            padding: 1rem;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                padding: 1rem;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .main-content {
+                padding: 1.5rem 1rem;
+                border-radius: 0;
+            }
+            .action-buttons {
+                right: 1.5rem;
+                bottom: 1.5rem;
+                gap: 1rem;
+            }
+        }
+
+        /* Add logout button styles */
+        .logout-btn {
+            margin-top: auto;
+            padding: 0.7rem 1rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-size: 1.08rem;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .logout-btn i {
+            font-size: 1.2rem;
+        }
+
+        /* Add context menu styles */
+        .context-menu {
+            position: fixed;
+            background: #1a1e25;
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 0.5rem 1rem;
+            color: #f3f6fa;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: #232733;
+        }
+
+        .context-menu-item i {
+            color: #dc3545;
+        }
+
+        /* Add research gap modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: #1a1e25;
+            margin: 5% auto;
+            padding: 2rem;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #f3f6fa;
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #bfc9da;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #f3f6fa;
+        }
+
+        /* Update research gap content styling */
+        .research-gap-content {
+            background: #232733;
+            padding: 2rem;
+            border-radius: 12px;
+            color: #f3f6fa;
+            line-height: 1.6;
+            max-height: 70vh;
+            overflow-y: auto;
+            border: 2px solid #5e72eb;
+            box-shadow: 0 4px 20px rgba(94, 114, 235, 0.1);
+        }
+
+        .research-gap-content h1 {
+            color: #5e72eb;
+            font-size: 1.8rem;
+            margin: 0 0 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid #5e72eb;
+            padding-bottom: 1rem;
+        }
+
+        .research-gap-content h2 {
+            color: #f3f6fa;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+            border-bottom: 1px solid #5e72eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .research-gap-content h3 {
+            color: #bfc9da;
+            font-size: 1.2rem;
+            margin: 1.2rem 0 0.8rem;
+        }
+
+        .research-gap-content p {
+            margin: 0.8rem 0;
+            text-align: justify;
+        }
+
+        .research-gap-content ol {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .research-gap-content li {
+            margin: 0.8rem 0;
+            text-align: justify;
+            padding-left: 0.5rem;
+        }
+
+        .research-gap-content .section {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: rgba(94, 114, 235, 0.05);
+            border-radius: 8px;
+        }
+
+        .research-gap-content .subsection {
+            margin: 1rem 0;
+            padding-left: 1rem;
+            border-left: 3px solid #5e72eb;
+        }
+
+        .research-gap-content .conclusion {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(94, 114, 235, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #5e72eb;
+        }
+
+        .research-gap-content .highlight {
+            color: #5e72eb;
+            font-weight: 600;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid #bfc9da;
+            border-radius: 50%;
+            border-top-color: #5e72eb;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .context-menu-item.research-gap i {
+            color: #5e72eb;
+        }
+    </style>
+</head>
+<body class="dashboard-bg">
+    <!-- Add research gap modal -->
+    <div id="researchGapModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Research Gap Analysis</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div id="researchGapContent" class="research-gap-content">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Update context menu -->
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item research-gap" id="researchGapOption">
+            <i class="fa fa-microscope"></i> Get Research Gap
+        </div>
+        <div class="context-menu-item" id="deleteOption">
+            <i class="fa fa-trash"></i> Delete
+        </div>
+    </div>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">ResearchApp</div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active"><i class="fa fa-folder"></i> Files</a>
+                <a href="#"><i class="fa fa-chart-bar"></i> Analytics</a>
+                <a href="#"><i class="fa fa-cog"></i> Settings</a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>Your Files</h1>
+            </div>
+            <div id="fileList" class="file-list">
+                <!-- Files will be loaded here -->
+            </div>
+            <div class="action-buttons">
+                <button type="button" class="research-gap-btn" id="researchGapBtn">
+                    <i class="fa fa-microscope"></i> Get Research Gap
+                </button>
+                <input type="file" id="fileInput" style="display:none" multiple accept=".pdf" />
+                <button type="button" class="upload-btn" id="uploadBtn">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileList = document.getElementById('fileList');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const fileInput = document.getElementById('fileInput');
+            const researchGapBtn = document.getElementById('researchGapBtn');
+            const contextMenu = document.getElementById('contextMenu');
+            const deleteOption = document.getElementById('deleteOption');
+            const researchGapModal = document.getElementById('researchGapModal');
+            const researchGapContent = document.getElementById('researchGapContent');
+            const closeModal = document.querySelector('.close-modal');
+            const researchGapOption = document.getElementById('researchGapOption');
+            let selectedFile = null;
+
+            // Context menu handling
+            document.addEventListener('click', (e) => {
+                if (!contextMenu.contains(e.target)) {
+                    contextMenu.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('contextmenu', (e) => {
+                const fileCard = e.target.closest('.file-card');
+                if (fileCard) {
+                    e.preventDefault();
+                    selectedFile = fileCard.dataset.filename;
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = `${e.pageX}px`;
+                    contextMenu.style.top = `${e.pageY}px`;
+                }
+            });
+
+            // Add token refresh function
+            async function refreshToken() {
+                try {
+                    const refreshToken = localStorage.getItem('refreshToken');
+                    if (!refreshToken) {
+                        throw new Error('No refresh token available');
+                    }
+
+                    const res = await fetch('/auth/handleRefresh', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ refreshToken })
+                    });
+
+                    if (!res.ok) {
+                        throw new Error('Failed to refresh token');
+                    }
+
+                    const data = await res.json();
+                    localStorage.setItem('accessToken', data.accessToken);
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                    return data.accessToken;
+                } catch (err) {
+                    console.error('Token refresh failed:', err);
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    window.location.href = '/login.html';
+                    throw err;
+                }
+            }
+
+            // Add fetch wrapper with token refresh
+            async function fetchWithToken(url, options = {}) {
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Add authorization header
+                options.headers = {
+                    ...options.headers,
+                    'Authorization': `Bearer ${token}`
+                };
+
+                try {
+                    const res = await fetch(url, options);
+                    
+                    // If unauthorized, try to refresh token
+                    if (res.status === 401) {
+                        const newToken = await refreshToken();
+                        // Retry request with new token
+                        options.headers['Authorization'] = `Bearer ${newToken}`;
+                        return fetch(url, options);
+                    }
+                    
+                    return res;
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                    throw err;
+                }
+            }
+
+            // Update loadFiles to use fetchWithToken
+            async function loadFiles() {
+                fileList.innerHTML = '<div class="loading">Loading files...</div>';
+                try {
+                    const res = await fetchWithToken('/dash/getFileNames');
+                    if (!res.ok) {
+                        throw new Error('Failed to fetch files');
+                    }
+                    const data = await res.json();
+                    
+                    if (!data.files || data.files.length === 0) {
+                        fileList.innerHTML = '<div class="no-files">No files found.</div>';
+                        return;
+                    }
+
+                    // Filter out directories and only show PDF files
+                    const pdfFiles = data.files.filter(file => file.endsWith('.pdf'));
+                    
+                    if (pdfFiles.length === 0) {
+                        fileList.innerHTML = '<div class="no-files">No PDF files found.</div>';
+                        return;
+                    }
+
+                    fileList.innerHTML = pdfFiles.map(file => {
+                        const fileName = file.split('/').pop();
+                        return `
+                            <div class="file-card" data-filename="${fileName}">
+                                <i class="fa fa-file-pdf file-icon"></i>
+                                <span class="file-name">${fileName}</span>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (err) {
+                    fileList.innerHTML = '<div class="error-msg">Error loading files.</div>';
+                    console.error('Error loading files:', err);
+                }
+            }
+
+            // Update file upload to use fetchWithToken
+            fileInput.onchange = async function() {
+                if (!fileInput.files.length) return;
+                
+                const formData = new FormData();
+                for (const file of fileInput.files) {
+                    formData.append('files', file);
+                }
+                
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                
+                try {
+                    const res = await fetchWithToken('/files/uploadLocalFiles', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!res.ok) {
+                        let errorMessage = 'Upload failed';
+                        try {
+                            const errorData = await res.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            const text = await res.text();
+                            console.error('Non-JSON response:', text);
+                            errorMessage = 'Server error occurred';
+                        }
+                        throw new Error(errorMessage);
+                    }
+                    
+                    await loadFiles();
+                } catch (err) {
+                    console.error('Upload error:', err);
+                    alert('File upload failed: ' + err.message);
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<i class="fa fa-plus"></i>';
+                    fileInput.value = '';
+                }
+            };
+
+            // Update delete handler to use fetchWithToken
+            deleteOption.addEventListener('click', async () => {
+                if (!selectedFile) return;
+
+                if (!confirm(`Are you sure you want to delete ${selectedFile}?`)) {
+                    return;
+                }
+
+                try {
+                    const res = await fetchWithToken('/files/deleteFile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ fileName: selectedFile })
+                    });
+
+                    if (!res.ok) {
+                        const error = await res.json();
+                        throw new Error(error.message || 'Delete failed');
+                    }
+
+                    await loadFiles();
+                    contextMenu.style.display = 'none';
+                } catch (err) {
+                    console.error('Delete error:', err);
+                    alert('Failed to delete file: ' + err.message);
+                }
+            });
+
+            // Update research gap handler to use fetchWithToken
+            researchGapOption.addEventListener('click', async () => {
+                if (!selectedFile) return;
+
+                researchGapModal.style.display = 'block';
+                researchGapContent.innerHTML = '<div class="loading-spinner"></div> Analyzing research papers...';
+
+                try {
+                    const res = await fetchWithToken('/dash/getGap');
+                    if (!res.ok) {
+                        if (res.status === 404) {
+                            throw new Error('No files found to analyze');
+                        }
+                        const error = await res.json();
+                        throw new Error(error.message || 'Failed to get research gap');
+                    }
+
+                    const data = await res.json();
+                    const content = data.researchGap;
+
+                    // Process the content
+                    const processedContent = content
+                        // Remove LaTeX boxed environment
+                        .replace(/\\boxed{/, '')
+                        .replace(/}$/, '')
+                        // Split into sections
+                        .split('\n\n')
+                        .map(section => {
+                            // Handle main sections
+                            if (section.startsWith('##')) {
+                                return `<h2>${section.replace('##', '').trim()}</h2>`;
+                            }
+                            // Handle subsections
+                            if (section.startsWith('Research Gap') || section.startsWith('Potential Area of Research')) {
+                                return `
+                                    <div class="section">
+                                        <h3>${section}</h3>
+                                    </div>
+                                `;
+                            }
+                            // Handle numbered lists
+                            if (section.match(/^\d+\./)) {
+                                const items = section.split('\n').map(item => {
+                                    if (item.match(/^\d+\./)) {
+                                        return `<li>${item.replace(/^\d+\.\s*/, '')}</li>`;
+                                    }
+                                    return item;
+                                }).join('\n');
+                                return `<ol>${items}</ol>`;
+                            }
+                            return section;
+                        })
+                        .join('\n')
+                        // Convert markdown-style formatting
+                        .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>')
+                        .replace(/^([^<].*$)/gm, '<p>$1</p>');
+
+                    researchGapContent.innerHTML = processedContent;
+                } catch (err) {
+                    console.error('Research gap error:', err);
+                    researchGapContent.innerHTML = `<div class="error-msg">Error: ${err.message}</div>`;
+                }
+            });
+
+            // Research gap button handler
+            researchGapBtn.onclick = () => {
+                window.location.href = '/research-gap.html';
+            };
+
+            // Update logout functionality
+            const logoutBtn = document.createElement('button');
+            logoutBtn.innerHTML = '<i class="fa fa-sign-out-alt"></i> Logout';
+            logoutBtn.className = 'logout-btn';
+            logoutBtn.onclick = () => {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login.html';
+            };
+            document.querySelector('.sidebar-nav').appendChild(logoutBtn);
+
+            // Modal handling
+            closeModal.onclick = () => {
+                researchGapModal.style.display = 'none';
+            };
+
+            window.onclick = (e) => {
+                if (e.target === researchGapModal) {
+                    researchGapModal.style.display = 'none';
+                }
+            };
+
+            loadFiles();
+        });
+    </script>
+</body>
+</html>
+ 

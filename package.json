@@ -1,0 +1,31 @@
+{
+  "name": "researchproject",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --watch server.js",
+    "dev": "node --watch server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.823.0",
+    "@aws-sdk/lib-storage": "^3.817.0",
+    "aws-sdk": "^2.1692.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "download": "^7.1.0",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.15.1",
+    "mongosh": "^2.5.1",
+    "multer": "^2.0.0",
+    "pdf-parse": "^1.1.1",
+    "url": "^0.11.4",
+    "xml2js": "^0.6.2"
+  }
+}

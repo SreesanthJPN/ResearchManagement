@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Gap Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #181c23;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            color: #f3f6fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #bfc9da;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover {
+            color: #f3f6fa;
+        }
+
+        .title {
+            font-size: 2rem;
+            color: #f3f6fa;
+            margin: 0;
+        }
+
+        .content {
+            background: #232733;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 2px solid #5e72eb;
+            box-shadow: 0 4px 20px rgba(94, 114, 235, 0.1);
+        }
+
+        .content h1 {
+            color: #5e72eb;
+            font-size: 1.8rem;
+            margin: 0 0 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid #5e72eb;
+            padding-bottom: 1rem;
+        }
+
+        .content h2 {
+            color: #f3f6fa;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+            border-bottom: 1px solid #5e72eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .content h3 {
+            color: #bfc9da;
+            font-size: 1.2rem;
+            margin: 1.2rem 0 0.8rem;
+        }
+
+        .content p {
+            margin: 0.8rem 0;
+            text-align: justify;
+            line-height: 1.6;
+        }
+
+        .content ol {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .content li {
+            margin: 0.8rem 0;
+            text-align: justify;
+            padding-left: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .content .section {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: rgba(94, 114, 235, 0.05);
+            border-radius: 8px;
+        }
+
+        .content .highlight {
+            color: #5e72eb;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #bfc9da;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #bfc9da;
+            border-radius: 50%;
+            border-top-color: #5e72eb;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .title {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="window.location.href='/dashboard.html'">
+                <i class="fa fa-arrow-left"></i> Back to Dashboard
+            </button>
+            <h1 class="title">Research Gap Analysis</h1>
+            <div style="width: 100px;"></div> <!-- Spacer for alignment -->
+        </div>
+        <div id="content" class="content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Analyzing research papers...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const content = document.getElementById('content');
+
+            // Check if user is authenticated
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const res = await fetch('/dash/getGap', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        localStorage.removeItem('accessToken');
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                    if (res.status === 404) {
+                        throw new Error('No files found to analyze');
+                    }
+                    const error = await res.json();
+                    throw new Error(error.message || 'Failed to get research gap');
+                }
+
+                const data = await res.json();
+                const researchGap = data.researchGap;
+
+                // Process the content
+                const processedContent = researchGap
+                    // Remove LaTeX boxed environment
+                    .replace(/\\boxed{/, '')
+                    .replace(/}$/, '')
+                    // Split into sections
+                    .split('\n\n')
+                    .map(section => {
+                        // Handle main sections
+                        if (section.startsWith('##')) {
+                            return `<h2>${section.replace('##', '').trim()}</h2>`;
+                        }
+                        // Handle subsections
+                        if (section.startsWith('Research Gap') || section.startsWith('Potential Area of Research')) {
+                            return `
+                                <div class="section">
+                                    <h3>${section}</h3>
+                                </div>
+                            `;
+                        }
+                        // Handle numbered lists
+                        if (section.match(/^\d+\./)) {
+                            const items = section.split('\n').map(item => {
+                                if (item.match(/^\d+\./)) {
+                                    return `<li>${item.replace(/^\d+\.\s*/, '')}</li>`;
+                                }
+                                return item;
+                            }).join('\n');
+                            return `<ol>${items}</ol>`;
+                        }
+                        return section;
+                    })
+                    .join('\n')
+                    // Convert markdown-style formatting
+                    .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>')
+                    .replace(/^([^<].*$)/gm, '<p>$1</p>');
+
+                content.innerHTML = processedContent;
+            } catch (err) {
+                console.error('Research gap error:', err);
+                content.innerHTML = `<div class="error-msg">Error: ${err.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html> 
